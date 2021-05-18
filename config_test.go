@@ -35,11 +35,13 @@ func TestEnv(t *testing.T) {
 
 	os.Setenv("K_ENV", "value")
 	os.Setenv("K_CAMEL-CASE", "value")
+	os.Setenv("K_CAMEL__CASE__Two", "value")
 
 	Load()
 
 	assert.Equal(t, "value", instance.String("k.env"), "they should be equal")
 	assert.Equal(t, "value", instance.String("k.camelCase"), "they should be equal")
+	assert.Equal(t, "value", instance.String("k.camelCaseTwo"), "they should be equal")
 }
 
 func TestConf(t *testing.T) {

@@ -178,6 +178,8 @@ func parseEnv(s string) string {
 
 	strs := make([]string, 0)
 
+	s = strings.ReplaceAll(s, "__", "-")
+
 	for _, v := range strings.Split(s, "_") {
 
 		var add string
