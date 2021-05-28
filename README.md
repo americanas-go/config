@@ -22,17 +22,17 @@ app:
 package main
 
 import (
-	"log"
-	"os"
+    "log"
+    "os"
 
-	"github.com/americanas-go/config"
+    "github.com/americanas-go/config"
 )
 
 func main() {
 
-	os.Args = []string{"--conf", "./config.yaml"}
+    os.Args = []string{"--conf", "./config.yaml"}
 
-	config.Load()
+    config.Load()
 
     log.Println(config.String("app.application.name"))
     //output: 2021/05/28 16:52:49 app_example_file
@@ -45,19 +45,19 @@ Example reading from environment variables
 package main
 
 import (
-	"log"
-	"os"
+    "log"
+    "os"
 
-	"github.com/americanas-go/config"
+    "github.com/americanas-go/config"
 )
 
 func main() {
 
-	os.Setenv("K_ENV", "env")
-	os.Setenv("K_CAMEL-CASE", "camel-case")
-	os.Setenv("K_CAMEL__CASE__Two", "camel_case_two")
+    os.Setenv("K_ENV", "env")
+    os.Setenv("K_CAMEL-CASE", "camel-case")
+    os.Setenv("K_CAMEL__CASE__Two", "camel_case_two")
 
-	config.Load()
+    config.Load()
 
     log.Println(config.String("k.env"))
     //output: 2021/05/28 17:20:03 env
@@ -74,18 +74,18 @@ Example reading from command line
 package main
 
 import (
-	"log"
+    "log"
 
-	"github.com/americanas-go/config"
+    "github.com/americanas-go/config"
 )
 
 func main() {
 
-	config.Add("app.application.name", "app_example_file", "description of name")
-	config.Add("app.application.enabled", true, "description of enabled")
-	config.Add("app.application.duration", 10, "description of duration")
+    config.Add("app.application.name", "app_example_file", "description of name")
+    config.Add("app.application.enabled", true, "description of enabled")
+    config.Add("app.application.duration", 10, "description of duration")
 
-	config.Load()
+    config.Load()
 
     log.Println(config.String("app.application.name"))
     //output: 2021/05/28 17:40:27 app_example_file
@@ -110,29 +110,29 @@ app:
 package main
 
 import (
-	"log"
-	"os"
+    "log"
+    "os"
 
-	"github.com/americanas-go/config"
+    "github.com/americanas-go/config"
 )
 
 type AppConfig struct {
-	Application struct {
-		Name     string
-		Enabled  bool
-		Duration int
-	}
+    Application struct {
+        Name     string
+        Enabled  bool
+        Duration int
+    }
 }
 
 func main() {
 
-	os.Args = []string{"--conf", "./config.yaml"}
+    os.Args = []string{"--conf", "./config.yaml"}
 
-	config.Load()
+    config.Load()
 
-	c := AppConfig{}
+    c := AppConfig{}
 
-	config.UnmarshalWithPath("app", &c)
+    config.UnmarshalWithPath("app", &c)
 
     log.Println(c.Application.Name)
     //output: 2021/05/28 17:54:12 app_example_file
