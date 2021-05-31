@@ -46,6 +46,7 @@ func flagLoad() {
 	}
 }
 
+//  Load parsing and load flags, files and environments.
 func Load() {
 
 	// Load flags
@@ -95,7 +96,6 @@ func Load() {
 	if err := instance.Load(flap, nil); err != nil {
 		panic(err)
 	}
-
 }
 
 func parseFlags() {
