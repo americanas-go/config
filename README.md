@@ -28,9 +28,11 @@ import (
     "github.com/americanas-go/config"
 )
 
-func main() {
-
+func init() {
     os.Args = []string{"--conf", "./config.yaml"}
+}
+
+func main() {
 
     config.Load()
 
@@ -51,11 +53,13 @@ import (
     "github.com/americanas-go/config"
 )
 
-func main() {
-
+func init() {
     os.Setenv("K_ENV", "env")
     os.Setenv("K_CAMEL-CASE", "camel-case")
     os.Setenv("K_CAMEL__CASE__Two", "camel_case_two")
+}
+
+func main() {
 
     config.Load()
 
@@ -79,11 +83,13 @@ import (
     "github.com/americanas-go/config"
 )
 
-func main() {
-
+func init() {
     config.Add("app.application.name", "app_example_file", "description of name")
     config.Add("app.application.enabled", true, "description of enabled")
     config.Add("app.application.duration", 10, "description of duration")
+}
+
+func main() {
 
     config.Load()
 
@@ -124,9 +130,11 @@ type AppConfig struct {
     }
 }
 
-func main() {
-
+func init() {
     os.Args = []string{"--conf", "./config.yaml"}
+}
+
+func main() {
 
     config.Load()
 
