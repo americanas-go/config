@@ -46,7 +46,7 @@ func flagLoad() {
 	}
 }
 
-//  Load parsing and load flags, files and environments.
+// Load parsing and load flags, files and environments.
 func Load() {
 
 	// Load flags

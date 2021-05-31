@@ -1,3 +1,4 @@
+// Package config provides a wrapper around koanf.
 package config
 
 import (
