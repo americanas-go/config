@@ -4,6 +4,7 @@ var (
 	entries []Config
 )
 
+// Add adds a flag configuration to entries.
 func Add(key string, value interface{}, description string, opts ...Option) {
 
 	o := &Options{}
@@ -20,6 +21,7 @@ func Add(key string, value interface{}, description string, opts ...Option) {
 	})
 }
 
+// Entries returns the flag configuration list as an array.
 func Entries() []Config {
 	return entries
 }
