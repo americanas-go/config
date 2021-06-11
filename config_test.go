@@ -2,10 +2,19 @@ package config
 
 import (
 	"os"
+	"reflect"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
+
+type ConfigSuite struct {
+	suite.Suite
+}
+
+func TestConfigSuite(t *testing.T) {
+	suite.Run(t, new(ConfigSuite))
+}
 
 type DBConfig struct {
 	Username string `config:"username"`
@@ -20,56 +29,124 @@ type MyConfig struct {
 	} `config:"red"`
 }
 
-func TestPFlag(t *testing.T) {
+func (s *WrapperSuite) TestConfigMethods() {
 
-	flagLoad()
+	tt := []struct {
+		name string
+		init func()
+		got  func() interface{}
+		want interface{}
+	}{
+		{
+			name: "Pflag config returns the value (string) from the key",
+			init: func() {
+				flagLoad()
+				Add("key", "value", "test")
+			},
+			got:  func() interface{} { return instance.String("key") },
+			want: "value",
+		},
+		{
+			name: "Env config returns the value (string) from the key",
+			init: func() {
+				os.Setenv("K_ENV", "value")
+			},
+			got:  func() interface{} { return instance.String("k.env") },
+			want: "value",
+		},
+		{
+			name: "Env config returns the camel case value (string) from the key",
+			init: func() {
+				os.Setenv("K_CAMEL-CASE", "value")
+			},
+			got:  func() interface{} { return instance.String("k.camelCase") },
+			want: "value",
+		},
+		{
+			name: "Env config returns the camel case two value (string) from the key",
+			init: func() {
+				os.Setenv("K_CAMEL__CASE__Two", "value")
+			},
+			got:  func() interface{} { return instance.String("k.camelCaseTwo") },
+			want: "value",
+		},
+		{
+			name: "Conf config returns the value (bool) from the key",
+			init: func() {
+				flagLoad()
+				os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
+			},
+			got:  func() interface{} { return instance.Bool("debug") },
+			want: true,
+		},
+		{
+			name: "Conf config returns the value (string) from the key",
+			init: func() {
+				flagLoad()
+				os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
+			},
+			got:  func() interface{} { return instance.String("redis.host") },
+			want: "127.0.0.13",
+		},
+		{
+			name: "Unmarshal config doesn't returns error",
+			init: func() {
+				flagLoad()
+				os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
+			},
+			got: func() interface{} {
+				c := MyConfig{}
+				return Unmarshal(&c)
+			},
+			want: nil,
+		},
+		{
+			name: "Unmarshal config returns the Addr field value",
+			init: func() {
+				flagLoad()
+				os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
+			},
+			got: func() interface{} {
+				c := MyConfig{}
+				Unmarshal(&c)
+				return c.Addr
+			},
+			want: ":8083",
+		},
+		{
+			name: "Unmarshal config returns the DB.Username field value",
+			init: func() {
+				flagLoad()
+				os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
+			},
+			got: func() interface{} {
+				c := MyConfig{}
+				Unmarshal(&c)
+				return c.DB.Username
+			},
+			want: "foosss",
+		},
+		{
+			name: "Unmarshal config returns the Redis.Host field value",
+			init: func() {
+				flagLoad()
+				os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
+			},
+			got: func() interface{} {
+				c := MyConfig{}
+				Unmarshal(&c)
+				return c.Redis.Host
+			},
+			want: "127.0.0.14",
+		},
+	}
 
-	Add("key", "value", "test")
-
-	Load()
-
-	assert.Equal(t, "value", instance.String("key"), "they should be equal")
-}
-
-func TestEnv(t *testing.T) {
-
-	os.Setenv("K_ENV", "value")
-	os.Setenv("K_CAMEL-CASE", "value")
-	os.Setenv("K_CAMEL__CASE__Two", "value")
-
-	Load()
-
-	assert.Equal(t, "value", instance.String("k.env"), "they should be equal")
-	assert.Equal(t, "value", instance.String("k.camelCase"), "they should be equal")
-	assert.Equal(t, "value", instance.String("k.camelCaseTwo"), "they should be equal")
-}
-
-func TestConf(t *testing.T) {
-
-	flagLoad()
-
-	os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
-
-	Load()
-
-	assert.True(t, instance.Bool("debug"), "they should be true")
-	assert.Equal(t, "127.0.0.13", instance.String("redis.host"), "they should be equal")
-}
-
-func TestUnmarshal(t *testing.T) {
-
-	flagLoad()
-
-	var err error
-
-	os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
-
-	Load()
-
-	c := MyConfig{}
-	err = Unmarshal(&c)
-	assert.Nil(t, err, "they should be nil")
-	assert.Equal(t, ":8083", c.Addr, "they should be equal")
-	assert.Equal(t, "foosss", c.DB.Username, "they should be equal")
-	assert.Equal(t, "127.0.0.14", c.Redis.Host, "they should be equal")
+	for _, t := range tt {
+		s.Run(t.name, func() {
+			t.init()
+			Load()
+			got := t.got()
+			s.Assert().True(reflect.DeepEqual(got, t.want), "got  %v\nwant %v", got, t.want)
+		})
+	}
 }
