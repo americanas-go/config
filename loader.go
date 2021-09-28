@@ -11,6 +11,7 @@ import (
 	"log"
 
 	"github.com/gobeam/stringy"
+	"github.com/knadh/koanf/providers/confmap"
 	flag "github.com/spf13/pflag"
 
 	"github.com/knadh/koanf"
@@ -96,6 +97,39 @@ func Load() {
 	if err := instance.Load(flap, nil); err != nil {
 		panic(err)
 	}
+
+	m := make(map[string]interface{})
+
+	for _, v := range entries {
+
+		switch v.Value.(type) {
+
+		case map[string]string:
+			toString, err := f.GetStringToString(v.Key)
+			if err != nil {
+				log.Println(err)
+			}
+			m[v.Key] = toString
+		case map[string]int:
+			toString, err := f.GetStringToInt(v.Key)
+			if err != nil {
+				log.Println(err)
+			}
+			m[v.Key] = toString
+		case map[string]int64:
+			toString, err := f.GetStringToInt64(v.Key)
+			if err != nil {
+				log.Println(err)
+			}
+			m[v.Key] = toString
+		}
+
+	}
+
+	if err := instance.Load(confmap.Provider(m, "."), nil); err != nil {
+		panic(err)
+	}
+
 }
 
 func parseFlags() {
@@ -113,6 +147,12 @@ func parseFlags() {
 			f.String(v.Key, t, v.Description)
 		case []string:
 			f.StringSlice(v.Key, t, v.Description)
+		case map[string]string:
+			f.StringToString(v.Key, t, v.Description)
+		case map[string]int:
+			f.StringToInt(v.Key, t, v.Description)
+		case map[string]int64:
+			f.StringToInt64(v.Key, t, v.Description)
 		case bool:
 			f.Bool(v.Key, t, v.Description)
 		case []bool:
@@ -157,7 +197,6 @@ func parseFlags() {
 			f.IPSlice(v.Key, t, v.Description)
 		case net.IPMask:
 			f.IPMask(v.Key, t, v.Description)
-		default:
 		}
 
 	}
