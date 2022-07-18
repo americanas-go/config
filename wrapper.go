@@ -141,3 +141,8 @@ func Bools(path string) []bool {
 func BoolMap(path string) map[string]bool {
 	return instance.BoolMap(path)
 }
+
+// All returns all configs
+func All() map[string]interface{} {
+	return instance.All()
+}
