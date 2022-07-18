@@ -146,3 +146,8 @@ func BoolMap(path string) map[string]bool {
 func All() map[string]interface{} {
 	return instance.All()
 }
+
+// Get returns interface{} value
+func Get(path string) interface{} {
+	return instance.Get(path)
+}
