@@ -53,6 +53,38 @@ func Load() {
 	// Load flags
 	parseFlags()
 
+	m := make(map[string]interface{})
+
+	for _, v := range entries {
+
+		switch v.Value.(type) {
+
+		case map[string]string:
+			toString, err := f.GetStringToString(v.Key)
+			if err != nil {
+				log.Println(err)
+			}
+			m[v.Key] = toString
+		case map[string]int:
+			toString, err := f.GetStringToInt(v.Key)
+			if err != nil {
+				log.Println(err)
+			}
+			m[v.Key] = toString
+		case map[string]int64:
+			toString, err := f.GetStringToInt64(v.Key)
+			if err != nil {
+				log.Println(err)
+			}
+			m[v.Key] = toString
+		}
+
+	}
+
+	if err := instance.Load(confmap.Provider(m, "."), nil); err != nil {
+		panic(err)
+	}
+
 	var files []string
 
 	confEnv := os.Getenv(ConfEnvironment)
@@ -95,38 +127,6 @@ func Load() {
 	flap := posflag.Provider(f, ".", instance)
 
 	if err := instance.Load(flap, nil); err != nil {
-		panic(err)
-	}
-
-	m := make(map[string]interface{})
-
-	for _, v := range entries {
-
-		switch v.Value.(type) {
-
-		case map[string]string:
-			toString, err := f.GetStringToString(v.Key)
-			if err != nil {
-				log.Println(err)
-			}
-			m[v.Key] = toString
-		case map[string]int:
-			toString, err := f.GetStringToInt(v.Key)
-			if err != nil {
-				log.Println(err)
-			}
-			m[v.Key] = toString
-		case map[string]int64:
-			toString, err := f.GetStringToInt64(v.Key)
-			if err != nil {
-				log.Println(err)
-			}
-			m[v.Key] = toString
-		}
-
-	}
-
-	if err := instance.Load(confmap.Provider(m, "."), nil); err != nil {
 		panic(err)
 	}
 
