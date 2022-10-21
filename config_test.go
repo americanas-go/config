@@ -89,6 +89,16 @@ func (s *WrapperSuite) TestConfigMethods() {
 			want: "127.0.0.13",
 		},
 		{
+			name: "Conf config.production returns the value (bool) from the key",
+			init: func() {
+				os.Setenv("CONF_ENV", "production")
+				flagLoad()
+				os.Args = []string{"--conf", "./testdata/config.json", "--conf", "./testdata/config.yaml"}
+			},
+			got:  func() interface{} { return instance.Bool("debug") },
+			want: false,
+		},
+		{
 			name: "Unmarshal config doesn't returns error",
 			init: func() {
 				flagLoad()

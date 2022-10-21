@@ -18,13 +18,14 @@ import (
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/parsers/yaml"
-	"github.com/knadh/koanf/providers/env"
+	provEnv "github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/posflag"
 )
 
 const ConfArgument = "conf"
-const ConfEnvironment = "CONF"
+const ConfEnvironmentFiles = "CONF"
+const ConfEnvironment = "CONF_ENV"
 
 var (
 	instance *koanf.Koanf
@@ -48,18 +49,18 @@ func flagLoad() {
 }
 
 // Load parsing and load flags, files and environments.
-func Load() {
+func Load(files ...string) {
 
 	// Load flags
 	parseFlags()
 
-	var files []string
+	confEnv := os.Getenv(ConfEnvironmentFiles)
+	env := os.Getenv(ConfEnvironment)
 
-	confEnv := os.Getenv(ConfEnvironment)
-	if confEnv != "" {
+	if confEnv != "" && len(files) == 0 {
 		// Load the config files provided in the environment var.
 		files = strings.Split(confEnv, ",")
-	} else {
+	} else if len(files) == 0 {
 		// Load the config files provided in the commandline.
 		files, _ = f.GetStringSlice(ConfArgument)
 	}
@@ -81,10 +82,17 @@ func Load() {
 		if err := instance.Load(file.Provider(c), parser); err != nil {
 			panic(err)
 		}
+
+		if env != "" {
+			sufix := fmt.Sprintf(".%s%s", env, filepath.Ext(c))
+			path := strings.Replace(c, filepath.Ext(c), sufix, 1)
+			_ = instance.Load(file.Provider(path), parser)
+		}
+
 	}
 
 	// Env vars
-	err := instance.Load(env.Provider("", ".", func(s string) string {
+	err := instance.Load(provEnv.Provider("", ".", func(s string) string {
 		return parseEnv(s)
 	}), nil)
 	if err != nil {

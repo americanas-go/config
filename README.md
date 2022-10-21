@@ -33,7 +33,15 @@ func init() {
 
 func main() {
 
+    // the Load will get file from env CONF
+    // ex. CONF=./config/config.yml
     config.Load()
+    
+    // OR from cli Args
+    // go run main.conf --conf ./config.yml
+
+    // OR direct in the Load func as arg
+    // config.Load("../config/config.yml")
 
     log.Println(config.String("app.application.name"))
     //output: 2021/05/28 16:52:49 app_example_file
