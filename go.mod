@@ -1,6 +1,6 @@
 module github.com/americanas-go/config
 
-go 1.21
+go 1.22
 
 require (
 	github.com/gobeam/stringy v0.0.6
